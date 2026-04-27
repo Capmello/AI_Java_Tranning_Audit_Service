@@ -52,3 +52,31 @@ CodeCoverage/
 *.VisualState.xml
 TestResult.xml
 nunit-*.xml
+
+# Local secrets — env/*.env are real values, env/*.env.example is committed
+.env
+.env.*.local
+env/*.env
+!env/*.env.example
+
+# Runtime logs
+logs/
+
+# Visual Studio
+.vs/
+*.user
+*.suo
+
+# JetBrains Rider
+.idea/
+*.DotSettings.user
+
+# Claude Code per-user settings
+.claude/*.local.json
+
+# OS junk
+Thumbs.db
+.DS_Store
+
+# Editor swap files
+*.swp

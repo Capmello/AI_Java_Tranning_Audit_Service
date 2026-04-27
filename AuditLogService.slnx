@@ -1,0 +1,21 @@
+<Solution>
+  <Project Path="docker-compose.dcproj">
+    <Build />
+  </Project>
+  <Folder Name="/env/">
+    <File Path="env/postgres.env.example" />
+    <File Path="env/api.env.example" />
+  </Folder>
+  <Folder Name="/src/">
+    <Project Path="src/AuditLogService.Api/AuditLogService.Api.csproj" />
+    <Project Path="src/AuditLogService.Application/AuditLogService.Application.csproj" />
+    <Project Path="src/AuditLogService.Domain/AuditLogService.Domain.csproj" />
+    <Project Path="src/AuditLogService.Infrastructure/AuditLogService.Infrastructure.csproj" />
+  </Folder>
+  <Folder Name="/tests/">
+    <Project Path="tests/AuditLogService.Api.Tests/AuditLogService.Api.Tests.csproj" />
+    <Project Path="tests/AuditLogService.Application.Tests/AuditLogService.Application.Tests.csproj" />
+    <Project Path="tests/AuditLogService.Domain.Tests/AuditLogService.Domain.Tests.csproj" />
+    <Project Path="tests/AuditLogService.Infrastructure.Tests/AuditLogService.Infrastructure.Tests.csproj" />
+  </Folder>
+</Solution>
