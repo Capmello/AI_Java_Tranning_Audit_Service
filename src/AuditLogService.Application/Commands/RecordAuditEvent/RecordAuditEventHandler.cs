@@ -19,13 +19,13 @@ public sealed class RecordAuditEventHandler(
             request.Action, request.Resource, request.Metadata is { Count: > 0 });
 
         var auditEvent = AuditEvent.Record(
-            actor:         request.Actor,
-            action:        request.Action,
-            resource:      request.Resource,
-            resourceId:    request.ResourceId,
+            actor: request.Actor,
+            action: request.Action,
+            resource: request.Resource,
+            resourceId: request.ResourceId,
             correlationId: request.CorrelationId,
-            metadata:      request.Metadata,
-            clock:         () => DateTime.UtcNow);
+            metadata: request.Metadata,
+            clock: () => DateTime.UtcNow);
 
         try
         {

@@ -18,14 +18,14 @@ public sealed class GetAuditEventsHandler(
             request.Actor, request.Action, request.Resource, request.Page, request.PageSize);
 
         var filter = new AuditEventFilter(
-            Actor:         request.Actor,
-            Action:        request.Action,
-            Resource:      request.Resource,
+            Actor: request.Actor,
+            Action: request.Action,
+            Resource: request.Resource,
             CorrelationId: request.CorrelationId,
-            FromUtc:       request.FromUtc,
-            ToUtc:         request.ToUtc,
-            PageSize:      request.PageSize,
-            Page:          request.Page);
+            FromUtc: request.FromUtc,
+            ToUtc: request.ToUtc,
+            PageSize: request.PageSize,
+            Page: request.Page);
 
         var events = await repository.QueryAsync(filter, ct);
 

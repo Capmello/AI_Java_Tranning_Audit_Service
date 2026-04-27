@@ -1,4 +1,6 @@
 using AuditLogService.Application.DTOs;
+using AuditLogService.Domain.Entities;
+using AuditLogService.Domain.Repositories;
 using AuditLogService.Infrastructure.Persistence;
 using Microsoft.AspNetCore.Hosting;
 using Microsoft.AspNetCore.Mvc.Testing;
@@ -71,12 +73,12 @@ public sealed class AuditEventsControllerTests : IAsyncLifetime
     {
         var payload = new
         {
-            actor    = "user@example.com",
-            action   = "create",
+            actor = "user@example.com",
+            action = "create",
             resource = "order",
-            resourceId    = "ord-1",
+            resourceId = "ord-1",
             correlationId = (string?)null,
-            metadata      = (object?)null
+            metadata = (object?)null
         };
 
         var response = await _client.PostAsJsonAsync("/api/audit-events", payload);
@@ -94,8 +96,8 @@ public sealed class AuditEventsControllerTests : IAsyncLifetime
 
         var payload = new
         {
-            actor    = "system",
-            action   = "sync",
+            actor = "system",
+            action = "sync",
             resource = "inventory"
         };
 
@@ -131,13 +133,34 @@ public sealed class AuditEventsControllerTests : IAsyncLifetime
         response.StatusCode.ShouldBe(HttpStatusCode.BadRequest);
     }
 
+    [Theory]
+    [InlineData("")]
+    [InlineData("   ")]
+    public async Task Post_BlankActor_Returns400(string actor)
+    {
+        var response = await _client.PostAsJsonAsync("/api/audit-events",
+            new { actor, action = "x", resource = "y" });
+
+        response.StatusCode.ShouldBe(HttpStatusCode.BadRequest);
+        var body = await response.Content.ReadAsStringAsync();
+        body.ShouldContain("Actor");
+    }
+
+    [Fact]
+    public async Task Post_MissingRequiredFields_Returns400()
+    {
+        var response = await _client.PostAsJsonAsync("/api/audit-events",
+            new { actor = "a" }); // action and resource missing
+
+        response.StatusCode.ShouldBe(HttpStatusCode.BadRequest);
+    }
+
     [Fact]
     public async Task UnhandledException_InProduction_DoesNotLeakStackTrace()
     {
-        // Empty actor passes JSON deserialization but trips ArgumentException
-        // inside AuditEvent.Record, producing an unhandled exception in the pipeline.
-        // Boot a Production-environment factory so UseExceptionHandler is wired,
-        // not UseDeveloperExceptionPage.
+        // Override IAuditEventRepository with one that always throws, then
+        // boot a Production-environment factory so UseExceptionHandler is wired
+        // (not UseDeveloperExceptionPage) and assert no stack trace leaks.
         await using var prodFactory = new WebApplicationFactory<Program>()
             .WithWebHostBuilder(builder =>
             {
@@ -157,18 +180,35 @@ public sealed class AuditEventsControllerTests : IAsyncLifetime
                     var ds = dataSourceBuilder.Build();
                     services.AddSingleton(ds);
                     services.AddDbContext<AuditDbContext>(opts => opts.UseNpgsql(ds));
+
+                    var repoDescriptor = services.SingleOrDefault(
+                        d => d.ServiceType == typeof(IAuditEventRepository));
+                    if (repoDescriptor != null) services.Remove(repoDescriptor);
+                    services.AddScoped<IAuditEventRepository, ThrowingAuditEventRepository>();
                 });
             });
         using var prodClient = prodFactory.CreateClient();
 
-        var payload = new { actor = "", action = "x", resource = "y" };
+        var payload = new { actor = "alice", action = "create", resource = "doc" };
         var response = await prodClient.PostAsJsonAsync("/api/audit-events", payload);
 
         response.StatusCode.ShouldBe(HttpStatusCode.InternalServerError);
         var body = await response.Content.ReadAsStringAsync();
         body.ShouldNotContain("at AuditLogService.");
         body.ShouldNotContain("StackTrace");
-        body.ShouldNotContain("ArgumentException");
+        body.ShouldNotContain("ThrowingAuditEventRepository");
+    }
+
+    private sealed class ThrowingAuditEventRepository : IAuditEventRepository
+    {
+        public Task AppendAsync(AuditEvent auditEvent, CancellationToken ct = default)
+            => throw new InvalidOperationException("simulated infrastructure failure");
+
+        public Task<IReadOnlyList<AuditEvent>> QueryAsync(AuditEventFilter filter, CancellationToken ct = default)
+            => throw new InvalidOperationException("simulated infrastructure failure");
+
+        public Task<int> DeleteOlderThanAsync(DateTime cutoffUtc, CancellationToken ct = default)
+            => throw new InvalidOperationException("simulated infrastructure failure");
     }
 
     [Fact]

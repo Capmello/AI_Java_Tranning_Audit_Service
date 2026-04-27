@@ -21,12 +21,12 @@ public sealed class AuditEventsController(IMediator mediator) : ControllerBase
         var correlationId = HttpContext.Items["CorrelationId"] as string;
 
         var command = new RecordAuditEventCommand(
-            Actor:         request.Actor,
-            Action:        request.Action,
-            Resource:      request.Resource,
-            ResourceId:    request.ResourceId,
+            Actor: request.Actor,
+            Action: request.Action,
+            Resource: request.Resource,
+            ResourceId: request.ResourceId,
             CorrelationId: request.CorrelationId ?? correlationId,
-            Metadata:      request.Metadata);
+            Metadata: request.Metadata);
 
         var result = await mediator.Send(command, ct);
         return CreatedAtAction(nameof(Query), new { }, result);
@@ -53,9 +53,9 @@ public sealed class AuditEventsController(IMediator mediator) : ControllerBase
 }
 
 public sealed record RecordAuditEventRequest(
-    string Actor,
-    string Action,
-    string Resource,
-    string? ResourceId,
-    string? CorrelationId,
+    [Required, StringLength(256, MinimumLength = 1)] string Actor,
+    [Required, StringLength(256, MinimumLength = 1)] string Action,
+    [Required, StringLength(256, MinimumLength = 1)] string Resource,
+    [StringLength(256)] string? ResourceId,
+    [StringLength(128)] string? CorrelationId,
     Dictionary<string, string>? Metadata);
