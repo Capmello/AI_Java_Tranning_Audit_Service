@@ -16,7 +16,7 @@ These rules are strict and must never be violated:
   - `timestamp` is always set by the server
   - Client-provided timestamps are ignored/rejected
 - ** Always check that solution can be built and run**
-- ** Always run tests after applying changes**
+- ** Always run ALL tests after applying changes**
 - ** Do not change tests to bypass failures**
 - ** Use only freeware nuget packages, avoid any commercial**
 - ** New features should be implemented in separate branch. Naming rule is feature/feature-description, for example: feature/add-logging, feature/add-database

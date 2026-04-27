@@ -15,11 +15,16 @@ public static class DependencyInjection
         this IServiceCollection services,
         IConfiguration configuration)
     {
-        var dataSourceBuilder = new NpgsqlDataSourceBuilder(configuration.GetConnectionString("Default"));
-        dataSourceBuilder.EnableDynamicJson();
-        var dataSource = dataSourceBuilder.Build();
+        services.AddSingleton<NpgsqlDataSource>(sp =>
+        {
+            var cs = sp.GetRequiredService<IConfiguration>().GetConnectionString("Default");
+            var builder = new NpgsqlDataSourceBuilder(cs);
+            builder.EnableDynamicJson();
+            return builder.Build();
+        });
 
-        services.AddDbContext<AuditDbContext>(opts => opts.UseNpgsql(dataSource));
+        services.AddDbContext<AuditDbContext>((sp, opts) =>
+            opts.UseNpgsql(sp.GetRequiredService<NpgsqlDataSource>()));
 
         services.AddScoped<IAuditEventRepository, AuditEventRepository>();
         services.AddHostedService<RetentionArchivalJob>();
