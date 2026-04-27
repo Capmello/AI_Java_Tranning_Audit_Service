@@ -30,14 +30,14 @@ public sealed class AuditEvent
 
         return new AuditEvent
         {
-            Id            = Guid.NewGuid(),
-            Timestamp     = DateTime.SpecifyKind(clock(), DateTimeKind.Utc),
-            Actor         = actor,
-            Action        = action,
-            Resource      = resource,
-            ResourceId    = resourceId,
+            Id = Guid.NewGuid(),
+            Timestamp = DateTime.SpecifyKind(clock(), DateTimeKind.Utc),
+            Actor = actor,
+            Action = action,
+            Resource = resource,
+            ResourceId = resourceId,
             CorrelationId = correlationId,
-            Metadata      = metadata ?? new Dictionary<string, string>()
+            Metadata = metadata ?? new Dictionary<string, string>()
         };
     }
 }
