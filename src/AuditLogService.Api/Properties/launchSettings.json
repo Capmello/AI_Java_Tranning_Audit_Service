@@ -1,0 +1,13 @@
+{
+  "profiles": {
+    "AuditLogService.Api": {
+      "commandName": "Project",
+      "launchBrowser": true,
+      "environmentVariables": {
+        "ASPNETCORE_ENVIRONMENT": "Development",
+        "RetentionDays": "90"
+      },
+      "applicationUrl": "https://localhost:50166;http://localhost:50167"
+    }
+  }
+}
