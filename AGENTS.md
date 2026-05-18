@@ -62,3 +62,7 @@ These rules are strict and must never be violated:
 ### 7. Testing strategy
 - Domain logic fully covered by unit tests
 - Critical API flows covered by integration tests
+
+
+##BA rules
+- When analyzing new feature see BA.md file for additional instructions placed in the same folder
